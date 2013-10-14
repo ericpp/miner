@@ -8,22 +8,25 @@ Dependencies: mdbtools, mysql (goal to move to any database), rename (update lis
 Test Dependencies: nose
 """
  
-import glob, os, csv, sys, getopt
-from library.utils.helpers import *
-from library.utils.db import *
+import glob, os, csv, sys, getopt, importlib
+#from library.utils.helpers import *
+#from library.utils.db import *
+
 from library.maps.uscensus import *
 from library.maps.usform990 import *
 from library.maps.nycpolicepenalties import *
+from library.maps.enronemail import *
 
+from library.database.dbsqlite3 import DBSQLite3
 
 def main(argv):
-
     # dict of existing maps
     # maps must be here in order to work
     maps = {
         'uscensus2010': USCensus2010,
         'usform990': USForm990,
         'nycpolicepenalties': NYCPolicePenalties,
+        'enronemail': EnronEmail
     }
 
     try:
@@ -48,17 +51,16 @@ def main(argv):
             # - download -- download the data from a server
             # - unpack -- unzip the data and clean it
             # - install -- send it to the configured database
-            try:
+            # try:
                 proc = maps[arg]()
                 file_name = proc.download()
-                if file_name:
-                    if proc.unpack(file_name):
-                        if proc.install(file_name):
-                            print "Dataset " + arg + " installed successfully."
+                db = DBSQLite3({ 'database': arg + '.db' })
+                db.connect()
+                db.install_map(proc)
                 print "Dataset " + arg + " installed successfully"
 
-            except KeyError:
-                print "Can't find dataset. Try miner -s DATASET"
+            # except KeyError:
+            #     print "Can't find dataset. Try miner -s DATASET"
 
 
         elif opt in ("-a"):

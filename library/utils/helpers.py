@@ -10,7 +10,7 @@ Each of these functions has corresponding tests in tests/helpers_test.py
 
 import os, csv, sys, optparse
 from conf.settings import *
-from messytables import StringType, IntegerType, DateType, \
+from lib.messytables import StringType, IntegerType, DateType, \
         CSVTableSet, type_guess, \
         types_processor, headers_guess, headers_processor, \
         offset_processor, any_tableset
